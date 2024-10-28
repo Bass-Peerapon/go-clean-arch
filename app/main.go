@@ -10,11 +10,13 @@ import (
 	"strconv"
 	"time"
 
+	_ "github.com/bxcodec/go-clean-arch/app/docs"
 	"github.com/bxcodec/go-clean-arch/bmi"
 	grpcServer "github.com/bxcodec/go-clean-arch/internal/grpc"
 	mysqlRepo "github.com/bxcodec/go-clean-arch/internal/repository/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"google.golang.org/grpc"
 
 	"github.com/bxcodec/go-clean-arch/article"
@@ -35,6 +37,11 @@ func init() {
 	}
 }
 
+// @title BMI Calculator API
+// @version 1.0
+// @description API สำหรับคำนวณค่า BMI
+// @host localhost:9090
+// @BasePath /
 func main() {
 	// prepare database
 	dbHost := os.Getenv("DATABASE_HOST")
@@ -69,6 +76,7 @@ func main() {
 
 	e := echo.New()
 	e.Use(middleware.CORS)
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	timeoutStr := os.Getenv("CONTEXT_TIMEOUT")
 	timeout, err := strconv.Atoi(timeoutStr)
 	if err != nil {

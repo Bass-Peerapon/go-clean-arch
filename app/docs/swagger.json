@@ -1,0 +1,79 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/calculate-bmi": {
+            "post": {
+                "description": "คำนวณค่า BMI จากน้ำหนักและส่วนสูง",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BMI"
+                ],
+                "summary": "คำนวณค่า BMI",
+                "parameters": [
+                    {
+                        "description": "ข้อมูลการคำนวณ BMI",
+                        "name": "Request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rest.CalculateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rest.CalculateResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ResponseError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "rest.CalculateRequest": {
+            "type": "object",
+            "properties": {
+                "height": {
+                    "description": "ส่วนสูง (meters)",
+                    "type": "number"
+                },
+                "weight": {
+                    "description": "น้ำหนัก (kg)",
+                    "type": "number"
+                }
+            }
+        },
+        "rest.CalculateResponse": {
+            "type": "object",
+            "properties": {
+                "bmi": {
+                    "type": "number"
+                }
+            }
+        },
+        "rest.ResponseError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

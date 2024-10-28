@@ -23,25 +23,37 @@ func NewBmiHandler(e *echo.Echo, svc BmiService) {
 	e.POST("/calculate-bmi", handler.Calculate)
 }
 
+type CalculateRequest struct {
+	Weight float64 `json:"weight"` // น้ำหนัก (kg)
+	Height float64 `json:"height"` // ส่วนสูง (meters)
+}
+
+type CalculateResponse struct {
+	BMI float64 `json:"bmi"`
+}
+
+// Calculate godoc
+// @Summary คำนวณค่า BMI
+// @Description คำนวณค่า BMI จากน้ำหนักและส่วนสูง
+// @Tags BMI
+// @Accept json
+// @Produce json
+// @Param Request body CalculateRequest true "ข้อมูลการคำนวณ BMI"
+// @Success 200 {object} CalculateResponse
+// @Failure 500 {object} ResponseError
+// @Router /calculate-bmi [post]
 func (h *BmiHandler) Calculate(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	type Request struct {
-		Weight float64 `json:"weight"`
-		Height float64 `json:"height"`
-	}
-
-	req := Request{}
+	req := CalculateRequest{}
 	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
 	}
 
 	bmi, err := h.Service.Calculate(ctx, req.Weight, req.Height)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
 	}
-	resp := map[string]interface{}{
-		"bmi": bmi,
-	}
+	resp := CalculateResponse{bmi}
 	return c.JSON(http.StatusOK, resp)
 }

@@ -1,0 +1,63 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/calculate-bmi": {
+            "post": {
+                "description": "คำนวณค่า BMI จากน้ำหนักและส่วนสูง",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BMI"
+                ],
+                "summary": "คำนวณค่า BMI",
+                "parameters": [
+                    {
+                        "description": "ข้อมูลการคำนวณ BMI",
+                        "name": "Request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rest.CalculateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rest.CalculateResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "rest.CalculateRequest": {
+            "type": "object",
+            "properties": {
+                "height": {
+                    "type": "number"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "rest.CalculateResponse": {
+            "type": "object",
+            "properties": {
+                "bmi": {
+                    "type": "number"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,50 @@
+definitions:
+  rest.CalculateRequest:
+    properties:
+      height:
+        description: ส่วนสูง (meters)
+        type: number
+      weight:
+        description: น้ำหนัก (kg)
+        type: number
+    type: object
+  rest.CalculateResponse:
+    properties:
+      bmi:
+        type: number
+    type: object
+  rest.ResponseError:
+    properties:
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /calculate-bmi:
+    post:
+      consumes:
+      - application/json
+      description: คำนวณค่า BMI จากน้ำหนักและส่วนสูง
+      parameters:
+      - description: ข้อมูลการคำนวณ BMI
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.CalculateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.CalculateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ResponseError'
+      summary: คำนวณค่า BMI
+      tags:
+      - BMI
+swagger: "2.0"
