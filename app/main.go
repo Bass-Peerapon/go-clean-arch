@@ -12,6 +12,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 
+	"github.com/bxcodec/go-clean-arch/bmi"
 	mysqlRepo "github.com/bxcodec/go-clean-arch/internal/repository/mysql"
 
 	"github.com/bxcodec/go-clean-arch/article"
@@ -33,7 +34,7 @@ func init() {
 }
 
 func main() {
-	//prepare database
+	// prepare database
 	dbHost := os.Getenv("DATABASE_HOST")
 	dbPort := os.Getenv("DATABASE_PORT")
 	dbUser := os.Getenv("DATABASE_USER")
@@ -78,7 +79,10 @@ func main() {
 
 	// Build service Layer
 	svc := article.NewService(articleRepo, authorRepo)
+	bmiService := bmi.NewService()
+
 	rest.NewArticleHandler(e, svc)
+	rest.NewBmiHandler(e, bmiService)
 
 	// Start Server
 	address := os.Getenv("SERVER_ADDRESS")
