@@ -1,0 +1,14 @@
+syntax = "proto3";
+option go_package = "./proto_models";
+package proto;
+
+service BMICalculator {
+  rpc CalculateBMI(BMICalculateRequest) returns (BMICalculateResponse);
+}
+
+message BMICalculateRequest {
+  double weight = 1;
+  double height = 2;
+}
+
+message BMICalculateResponse { double bmi = 1; }

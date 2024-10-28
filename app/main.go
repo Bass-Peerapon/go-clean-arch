@@ -4,16 +4,18 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net"
 	"net/url"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/bxcodec/go-clean-arch/bmi"
+	grpcServer "github.com/bxcodec/go-clean-arch/internal/grpc"
+	mysqlRepo "github.com/bxcodec/go-clean-arch/internal/repository/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
-
-	"github.com/bxcodec/go-clean-arch/bmi"
-	mysqlRepo "github.com/bxcodec/go-clean-arch/internal/repository/mysql"
+	"google.golang.org/grpc"
 
 	"github.com/bxcodec/go-clean-arch/article"
 	"github.com/bxcodec/go-clean-arch/internal/rest"
@@ -60,6 +62,9 @@ func main() {
 			log.Fatal("got error when closing the DB connection", err)
 		}
 	}()
+	server := grpc.NewServer()
+	defer server.GracefulStop()
+
 	// prepare echo
 
 	e := echo.New()
@@ -84,10 +89,35 @@ func main() {
 	rest.NewArticleHandler(e, svc)
 	rest.NewBmiHandler(e, bmiService)
 
+	bmiGrpc := grpcServer.NewGRPCBmiRoute(server)
+	bmiGrpcHandler := grpcServer.NewBmiGrpcHandler(bmiService)
+	bmiGrpc.RegisterBmiHandler(bmiGrpcHandler)
+
+	/* serve gprc */
+	go func() {
+		if r := recover(); r != nil {
+			fmt.Println(r.(error))
+		}
+		startGRPCServer(server)
+	}()
 	// Start Server
 	address := os.Getenv("SERVER_ADDRESS")
 	if address == "" {
 		address = defaultAddress
 	}
 	log.Fatal(e.Start(address)) //nolint
+}
+
+func startGRPCServer(server *grpc.Server) {
+	GRPC_PORT := os.Getenv("GRPC_PORT")
+	listen, err := net.Listen("tcp", GRPC_PORT)
+	if err != nil {
+		panic("failed to listen: " + err.Error())
+	}
+
+	/* serve grpc */
+	fmt.Println(fmt.Sprintf("Start grpc Server [:%s]", GRPC_PORT))
+	if err := server.Serve(listen); err != nil {
+		panic(err)
+	}
 }
